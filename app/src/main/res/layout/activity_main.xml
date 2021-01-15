@@ -6,34 +6,119 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:clipChildren="false"
         android:clipToPadding="false"
-        android:gravity="center_vertical"
+        android:gravity="center_horizontal"
         android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/drawSpan"
+        <TextView
+            android:id="@+id/cornerRadius"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Draw span" />
+            android:textSize="24dp"
+            android:textStyle="bold"
+            android:text="Corner radius: " />
 
-        <TextView
-            android:id="@+id/spanText"
+        <EditText
+            android:id="@+id/cornerRadiusET"
             android:textColor="@android:color/black"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="It's my very-very long testing text!\nLine2\nAnd mostly long line 3\nAnd new line\nAnd new line" />
+            android:textSize="24dp"
+            android:hint="e.g. 5"
+            android:inputType="number"
+            android:layout_marginStart="16dp"/>
+
+        <Button
+            android:id="@+id/cornerOK"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:text="OK" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/padding"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="24dp"
+            android:textStyle="bold"
+            android:text="Padding: " />
+
+        <EditText
+            android:id="@+id/paddingET"
+            android:textColor="@android:color/black"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:textSize="24dp"
+            android:hint="e.g. 8"
+            android:layout_marginStart="16dp"/>
+
+        <Button
+            android:id="@+id/paddingOK"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:text="OK" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/fontSize"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="24dp"
+            android:textStyle="bold"
+            android:text="Font size: " />
+
+        <EditText
+            android:id="@+id/fontSizeET"
+            android:textColor="@android:color/black"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:textSize="24dp"
+            android:hint="e.g. 16"
+            android:layout_marginStart="16dp"/>
+
+        <Button
+            android:id="@+id/fontSizeOK"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:text="OK" />
+
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"
         android:orientation="horizontal">
 
         <Button
@@ -48,7 +133,7 @@
             android:layout_height="wrap_content"
             android:text="center Align" />
 
-        <Button
+         <Button
             android:id="@+id/rightAlign"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -59,9 +144,13 @@
         android:id="@+id/spanEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:includeFontPadding="false"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
         android:background="@null"
-        android:hint="Spannable text"
+        android:hint="Enter text..."
         android:padding="10dp"
-        android:textSize="32dp" />
+        android:textSize="16dp" />
 
 </LinearLayout>

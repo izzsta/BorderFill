@@ -4,70 +4,83 @@ import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.text.*
-import android.view.Gravity
+import android.text.style.AlignmentSpan
+import android.text.style.CharacterStyle
+import android.util.Log
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.text.buildSpannedString
-import androidx.core.text.inSpans
+import androidx.core.text.clearSpans
 import kotlinx.android.synthetic.main.activity_main.*
+
 
 class MainActivity : AppCompatActivity() {
 
-    private val colors = listOf(
-        Color.YELLOW,
-        Color.BLUE,
-        Color.RED,
-        Color.GREEN,
-        Color.GRAY,
-        Color.CYAN
-    )
+    private var currentAlignment: Layout.Alignment = Layout.Alignment.ALIGN_NORMAL
+    private var currentPadding: Int = 5
+    private var currentCornerRadius: Int = 5
+    private var currentFontSize : Int = 16
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        drawSpan.setOnClickListener { initSpannableText(Alignment.LEFT) }
         initSpannableEditText()
 
+        paddingOK.setOnClickListener {
+            currentPadding = Integer.valueOf(paddingET.text.toString())
+            initSpannableEditText()
+        }
+        cornerOK.setOnClickListener {
+            currentCornerRadius = Integer.valueOf(cornerRadiusET.text.toString())
+            initSpannableEditText()
+        }
+        fontSizeOK.setOnClickListener {
+            currentFontSize = Integer.valueOf(fontSizeET.text.toString())
+            initSpannableEditText()
+        }
+
         leftAlign.setOnClickListener {
-            spanText.gravity = Gravity.LEFT
-            initSpannableText(Alignment.LEFT)
+            currentAlignment = Layout.Alignment.ALIGN_NORMAL
+            initSpannableEditText()
         }
         centerAlign.setOnClickListener {
-            spanText.gravity = Gravity.CENTER
-            initSpannableText(Alignment.CENTER)
+            currentAlignment = Layout.Alignment.ALIGN_CENTER
+            initSpannableEditText()
         }
         rightAlign.setOnClickListener {
-            spanText.gravity = Gravity.RIGHT
-            initSpannableText(Alignment.RIGHT)
-        }
-    }
-
-    private fun initSpannableText(alignment: Alignment) {
-        val span = SteppedBorder(
-            backgroundColor = colors.random(),
-            padding = dp(5),
-            radius = dp(5),
-            alignment = alignment
-        )
-
-        with(spanText) {
-            setShadowLayer(dp(10), 0f, 0f, 0) // it's important for padding working
-
-            text = buildSpannedString { inSpans(span) { append(text.toString()) } }
+            currentAlignment = Layout.Alignment.ALIGN_OPPOSITE
+            initSpannableEditText()
         }
     }
 
     private fun initSpannableEditText() {
-        val span = SteppedBorder(
-            backgroundColor = Color.CYAN,
-            padding = dp(5),
-            radius = dp(10)
+
+        var existingAlignmentSpans = spanEditText.text.getSpans(0, spanEditText.text.length, AlignmentSpan::class.java)
+        existingAlignmentSpans.forEach { spanEditText.text.removeSpan(it) }
+        var existingBackgroundSpans = spanEditText.text.getSpans(0, spanEditText.text.length, SteppedFillBorderSpan::class.java)
+        existingBackgroundSpans.forEach { spanEditText.text.removeSpan(it) }
+
+        val span = SteppedFillBorderSpan(
+            backgroundColor = Color.BLUE,
+            padding = dp(currentPadding),
+            radius = dp(currentCornerRadius),
+            alignment = currentAlignment
         )
+        val alignmentSpan = AlignmentSpan.Standard(currentAlignment)
+
+        spanEditText.text?.setSpan(alignmentSpan, 0, spanEditText.text.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        spanEditText.text?.setSpan(span, 0, spanEditText.text.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
 
         spanEditText.setShadowLayer(dp(10), 0f, 0f, 0) // it's important for padding working
 
         spanEditText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(text: Editable?) {
+                var textBackgroundSpans = spanEditText.text.getSpans(0, spanEditText.text.length, SteppedFillBorderSpan::class.java)
+                textBackgroundSpans.forEach { spanEditText.text.removeSpan(it) }
+                var alignmentSpans = spanEditText.text.getSpans(0, spanEditText.text.length, AlignmentSpan::class.java)
+                alignmentSpans.forEach { spanEditText.text.removeSpan(it) }
+
+                text?.setSpan(alignmentSpan, 0, spanEditText.text.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 text?.setSpan(span, 0, text.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
 

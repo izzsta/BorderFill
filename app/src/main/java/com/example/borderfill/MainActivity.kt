@@ -26,16 +26,11 @@ class MainActivity : AppCompatActivity() {
 
         initSpannableEditText()
 
-        paddingOK.setOnClickListener {
-            currentPadding = Integer.valueOf(paddingET.text.toString())
-            initSpannableEditText()
-        }
-        cornerOK.setOnClickListener {
-            currentCornerRadius = Integer.valueOf(cornerRadiusET.text.toString())
-            initSpannableEditText()
-        }
-        fontSizeOK.setOnClickListener {
-            currentFontSize = Integer.valueOf(fontSizeET.text.toString())
+        screenWidthOK.setOnClickListener {
+            val width = Integer.valueOf(screenWidthET.text.toString())
+            currentPadding = width / 34
+            currentCornerRadius = width / 54
+            currentFontSize = width / 12
             initSpannableEditText()
         }
 
@@ -54,6 +49,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initSpannableEditText() {
+        spanEditText.textSize = currentFontSize.toFloat()
 
         var existingAlignmentSpans = spanEditText.text.getSpans(0, spanEditText.text.length, AlignmentSpan::class.java)
         existingAlignmentSpans.forEach { spanEditText.text.removeSpan(it) }

@@ -1,15 +1,14 @@
 package com.example.borderfill
 
-import android.content.Context
+import android.content.res.Resources
 import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
 import android.os.Bundle
 import android.text.*
 import android.text.style.AlignmentSpan
-import android.text.style.CharacterStyle
-import android.util.Log
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.text.clearSpans
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -49,25 +48,35 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initSpannableEditText() {
-        spanEditText.textSize = currentFontSize.toFloat()
+        spanEditText.textSize = currentFontSize.pxToDp
+        spanEditText.setPadding(currentPadding, currentPadding, currentPadding, currentPadding)
+        spanEditText.setShadowLayer(currentPadding.toFloat(), 0f, 0f, 0) // it's important for padding working
 
         var existingAlignmentSpans = spanEditText.text.getSpans(0, spanEditText.text.length, AlignmentSpan::class.java)
         existingAlignmentSpans.forEach { spanEditText.text.removeSpan(it) }
         var existingBackgroundSpans = spanEditText.text.getSpans(0, spanEditText.text.length, SteppedFillBorderSpan::class.java)
         existingBackgroundSpans.forEach { spanEditText.text.removeSpan(it) }
 
-        val span = SteppedFillBorderSpan(
-            backgroundColor = Color.BLUE,
-            padding = dp(currentPadding),
-            radius = dp(currentCornerRadius),
-            alignment = currentAlignment
+
+        val outerSpan = SteppedFillBorderSpan(
+                backgroundColor = Color.BLUE,
+                padding = currentPadding.toFloat(),
+                radius = currentCornerRadius.toFloat(),
+                alignment = currentAlignment
         )
+
+        val span = BackgroundColorSpan(
+                backgroundColor = Color.BLUE,
+                strokeColor = Color.BLUE,
+                padding = currentPadding,
+                radius = currentCornerRadius
+        )
+
         val alignmentSpan = AlignmentSpan.Standard(currentAlignment)
 
         spanEditText.text?.setSpan(alignmentSpan, 0, spanEditText.text.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-        spanEditText.text?.setSpan(span, 0, spanEditText.text.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        spanEditText.text?.setSpan(outerSpan, 0, spanEditText.text.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
 
-        spanEditText.setShadowLayer(dp(10), 0f, 0f, 0) // it's important for padding working
 
         spanEditText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(text: Editable?) {
@@ -77,7 +86,7 @@ class MainActivity : AppCompatActivity() {
                 alignmentSpans.forEach { spanEditText.text.removeSpan(it) }
 
                 text?.setSpan(alignmentSpan, 0, spanEditText.text.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                text?.setSpan(span, 0, text.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                text?.setSpan(outerSpan, 0, text.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
 
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -90,8 +99,10 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun Context.dp(dp: Number): Float {
-        return dp.toFloat() * resources.displayMetrics.density
-    }
+    val Int.pxToDp: Float
+        get() = this / Resources.getSystem().displayMetrics.density
+
+    val Int.dpToPx: Float
+        get() = (this * Resources.getSystem().displayMetrics.density)
 }
 

@@ -19,11 +19,14 @@ class SteppedFillBorderSpan(
         private const val NO_INIT = -1f
     }
 
-    private val rect = RectF()
     private val paint = Paint().apply {
-        color = backgroundColor
+        color = Color.BLUE
         isAntiAlias = true
+        alpha = 128
+        style = Paint.Style.FILL_AND_STROKE
     }
+
+    private val rect = RectF()
     private val path = Path()
 
     private var prevWidth = NO_INIT
@@ -45,7 +48,7 @@ class SteppedFillBorderSpan(
     ) {
         val actualWidth = p.measureText(text, start, end) + 2f * padding
         val widthDiff = abs(prevWidth - actualWidth)
-        val doubleRadius = 3f * radius
+        val doubleRadius = 2f * radius
         val diffIsShort = widthDiff <= doubleRadius
 
         val width = if (lineNumber == 0) {
@@ -53,7 +56,7 @@ class SteppedFillBorderSpan(
         } else if ((actualWidth < prevWidth) && diffIsShort) {
             prevWidth
         } else if ((actualWidth > prevWidth) && diffIsShort) {
-            actualWidth + (3f * radius)
+            actualWidth + (2f * radius)
         } else {
             actualWidth
         }
@@ -77,7 +80,7 @@ class SteppedFillBorderSpan(
             }
         }
 
-        rect.set(shiftLeft, top.toFloat() - padding, shiftRight, bottom.toFloat() + padding)
+        rect.set(shiftLeft, top.toFloat(), shiftRight, bottom.toFloat())
 
         c.drawRoundRect(rect, radius, radius, paint)
 
@@ -87,7 +90,7 @@ class SteppedFillBorderSpan(
                     drawLeftStraightLineShape(c, rect, radius)
                     when {
                         prevWidth < width -> drawLowerCaseRRotated270Shape(c, rect, radius)
-                        prevWidth > width -> drawLowerCaseRShape(c, rect, radius, true)
+                        prevWidth > width -> drawLowerCaseRShape(c, rect, radius)
                         else -> drawRightStraightLineShape(c, rect, radius)
                     }
                 }
@@ -99,8 +102,8 @@ class SteppedFillBorderSpan(
 
                         }
                         prevWidth > width -> {
-                            drawLowerCaseRRotated90Shape(c, rect, radius, true)
-                            drawLowerCaseRShape(c, rect, radius, true)
+                            drawLowerCaseRRotated90Shape(c, rect, radius)
+                            drawLowerCaseRShape(c, rect, radius)
                         }
                         else -> {
                             drawLeftStraightLineShape(c, rect, radius)
@@ -112,7 +115,7 @@ class SteppedFillBorderSpan(
                     drawRightStraightLineShape(c, rect, radius)
                     when {
                         prevWidth < width -> drawLowerCaseRRotated180Shape(c, rect, radius)
-                        prevWidth > width -> drawLowerCaseRRotated90Shape(c, rect, radius, true)
+                        prevWidth > width -> drawLowerCaseRRotated90Shape(c, rect, radius)
                         else -> drawLeftStraightLineShape(c, rect, radius)
                     }
                 }
@@ -126,73 +129,108 @@ class SteppedFillBorderSpan(
 
     private fun drawLeftStraightLineShape(c: Canvas, rect: RectF, radius: Float) {
         path.reset()
-        path.moveTo(rect.left, rect.top + radius)
-        path.lineTo(rect.left, rect.top - radius)
-        path.lineTo(rect.left + radius, rect.top)
-        path.lineTo(rect.left, rect.top + radius)
-
+        path.moveTo(prevLeft + radius, rect.top)
+        path.lineTo(prevLeft, rect.top)
+        path.lineTo(prevLeft, rect.top - radius)
+        path.cubicTo(
+                prevLeft , rect.top - radius,
+                prevLeft , rect.top,
+                prevLeft + radius, rect.top
+        )
         c.drawPath(path, paint)
+
+        path.reset()
+        path.moveTo(prevLeft + radius, rect.top)
+        path.lineTo(prevLeft , rect.top)
+        path.lineTo(prevLeft, rect.top + radius)
+        path.cubicTo(
+                prevLeft , rect.top + radius,
+                prevLeft , rect.top,
+                prevLeft + radius, rect.top
+        )
+        c.drawPath(path, paint)
+
     }
 
     private fun drawRightStraightLineShape(c: Canvas, rect: RectF, radius: Float) {
         path.reset()
-        path.moveTo(rect.right, rect.top - radius)
-        path.lineTo(rect.right, rect.top + radius)
-        path.lineTo(rect.right - radius, rect.top)
-        path.lineTo(rect.right, rect.top - radius)
-
-        c.drawPath(path, paint)
-    }
-
-
-    private fun drawLowerCaseRShape(c: Canvas, rect: RectF, radius: Float, removePadding: Boolean) {
-        val top = if (removePadding) { rect.top + (2f * padding) } else { rect.top }
-        path.reset()
-        path.moveTo(rect.right + radius, top)
-        path.lineTo(rect.right - radius, top)
-        path.lineTo(rect.right, top + radius)
+        path.lineTo(prevRight - radius, rect.top)
+        path.moveTo(prevRight, rect.top)
+        path.lineTo(prevRight, rect.top + radius)
         path.cubicTo(
-            rect.right, top + radius,
-            rect.right, top,
-            rect.right + radius, top
+                prevRight, rect.top + radius,
+                prevRight, rect.top,
+                prevRight - radius, rect.top
         )
+        c.drawPath(path, paint)
 
+        path.reset()
+        path.lineTo(prevRight - radius, rect.top)
+        path.moveTo(prevRight, rect.top)
+        path.lineTo(prevRight, rect.top - radius)
+        path.cubicTo(
+                prevRight, rect.top - radius,
+                prevRight, rect.top,
+                prevRight - radius, rect.top
+        )
         c.drawPath(path, paint)
     }
 
-    private fun drawLowerCaseRRotated180Shape(c: Canvas, rect: RectF, radius: Float) {
+
+    private fun drawLowerCaseRShape(c: Canvas, rect: RectF, radius: Float) {
         path.reset()
-        path.lineTo(prevLeft - radius, rect.top)
         path.moveTo(prevLeft + radius, rect.top)
+        path.lineTo(prevLeft, rect.top)
         path.lineTo(prevLeft, rect.top - radius)
         path.cubicTo(
-            prevLeft, rect.top - radius,
-            prevLeft, rect.top,
-            prevLeft - radius, rect.top
+                prevLeft , rect.top - radius,
+                prevLeft , rect.top,
+                prevLeft + radius, rect.top
         )
+        c.drawPath(path, paint)
 
+        path.reset()
+        path.moveTo(prevLeft + radius, rect.top)
+        path.lineTo(prevLeft , rect.top)
+        path.lineTo(prevLeft, rect.top + radius)
+        path.cubicTo(
+                prevLeft , rect.top + radius,
+                prevLeft , rect.top,
+                prevLeft + radius, rect.top
+        )
         c.drawPath(path, paint)
     }
 
-    private fun drawLowerCaseRRotated90Shape(c: Canvas, rect: RectF, radius: Float, removePadding: Boolean) {
-        val top = if (removePadding) { rect.top + (2f * padding) } else rect.top
-        path.reset()
-        path.lineTo(rect.left - radius, top)
-        path.moveTo(rect.left + radius, top)
-        path.lineTo(rect.left, top + radius)
-        path.cubicTo(
-            rect.left, top + radius,
-            rect.left, top,
-            rect.left - radius, top
-        )
 
+
+    private fun drawLowerCaseRRotated90Shape(c: Canvas, rect: RectF, radius: Float) {
+        path.reset()
+        path.lineTo(rect.left - radius, rect.top)
+        path.moveTo(rect.left, rect.top)
+        path.lineTo(rect.left, rect.top + radius)
+        path.cubicTo(
+            rect.left, rect.top + radius,
+            rect.left, rect.top,
+            rect.left - radius, rect.top
+        )
+        c.drawPath(path, paint)
+
+        path.reset()
+        path.moveTo(rect.left + radius, rect.top)
+        path.lineTo(rect.left, rect.top)
+        path.lineTo(rect.left, rect.top + radius)
+        path.cubicTo(
+                rect.left, rect.top + radius,
+                rect.left, rect.top,
+                rect.left + radius, rect.top
+        )
         c.drawPath(path, paint)
     }
 
     private fun drawLowerCaseRRotated270Shape(c: Canvas, rect: RectF, radius: Float) {
         path.reset()
         path.moveTo(prevRight + radius, rect.top)
-        path.lineTo(prevRight - radius, rect.top)
+        path.lineTo(prevRight, rect.top)
         path.lineTo(prevRight, rect.top - radius)
         path.cubicTo(
             prevRight, rect.top - radius,
@@ -201,5 +239,42 @@ class SteppedFillBorderSpan(
         )
 
         c.drawPath(path, paint)
+
+        path.reset()
+        path.lineTo(prevRight - radius, rect.top)
+        path.moveTo(prevRight, rect.top)
+        path.lineTo(prevRight, rect.top - radius)
+        path.cubicTo(
+                prevRight, rect.top - radius,
+                prevRight, rect.top,
+                prevRight - radius, rect.top
+        )
+        c.drawPath(path, paint)
+    }
+
+    private fun drawLowerCaseRRotated180Shape(c: Canvas, rect: RectF, radius: Float) {
+        path.reset()
+        path.moveTo(prevLeft + radius, rect.top)
+        path.lineTo(prevLeft, rect.top)
+        path.lineTo(prevLeft, rect.top - radius)
+        path.cubicTo(
+                prevLeft, rect.top - radius,
+                prevLeft, rect.top,
+                prevLeft + radius, rect.top
+        )
+        c.drawPath(path, paint)
+
+        path.reset()
+        path.lineTo(prevLeft - radius, rect.top)
+        path.moveTo(prevLeft, rect.top)
+        path.lineTo(prevLeft, rect.top - radius)
+        path.cubicTo(
+                prevLeft, rect.top - radius,
+                prevLeft, rect.top,
+                prevLeft - radius, rect.top
+        )
+        c.drawPath(path, paint)
+
+
     }
 }
